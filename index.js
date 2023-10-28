@@ -53,7 +53,6 @@ class Shalten {
   }
 
   switchOn(key, options = {}) {
-    const { beforeOn, afterOn } = options;
     const shalten = this._shaltens.get(key);
 
     if (!shalten) throw new Error(`Shalten "${key}" not found`);
@@ -72,7 +71,7 @@ class Shalten {
 
       if (state === ON) throw new Error(`Shalten "${key}" is already on`);
 
-      this._doSomething(shalten, options);
+      switchOn(key, options);
 
       this._shaltens.set(key, { func, state: ON });
     }

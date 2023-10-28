@@ -1,11 +1,11 @@
-const Shalten = require("./index");
+const ShaltenBoard = require("./index");
 
 describe("Shalten methods", () => {
   const [TEST_KEY1, TEST_KEY2] = ["test", "test2"];
   const testFunc = () => {};
   const testValue = [TEST_KEY1, { func: testFunc, state: "off" }];
   const testValue2 = [TEST_KEY2, testFunc];
-  const board = new Shalten([testValue2]);
+  const board = new ShaltenBoard([testValue2]);
 
   test("contains added shalten value", () => {
     const shaltenItem = board.add(TEST_KEY1, testFunc).get(TEST_KEY1);
@@ -54,7 +54,7 @@ describe("Shalten methods", () => {
 });
 
 describe("Fetch data from API", () => {
-  const board = new Shalten();
+  const board = new ShaltenBoard();
   const fetchDataApi = jest.fn().mockReturnValue({ data: "data" });
   const checkState = jest.fn((state) => state).mockReturnValue("loading");
   let data = null;
