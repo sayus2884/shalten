@@ -1,13 +1,13 @@
 {
   "name": "shalten",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "jest"
   },
   "author": "Jonacius Villamor",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "jest": "^29.7.0"
   }
