@@ -1,5 +1,6 @@
 const ON = "on";
 const OFF = "off";
+const LOADING = "loading";
 
 class Shalten {
   constructor(shaltens = []) {
@@ -28,7 +29,7 @@ class Shalten {
     this._shaltens = new Map(_shaltens);
   }
 
-  get values() {
+  get shaltens() {
     return Array.from(this._shaltens);
   }
 
@@ -51,31 +52,23 @@ class Shalten {
     const { beforeOn, afterOn } = options;
     const shalten = this._shaltens.get(key);
 
-    if (!shalten) throw new Error(`Shalten ${key} not found`);
-    if (shalten.state === ON) throw new Error(`Shalten ${key} is already on`);
+    if (!shalten) throw new Error(`Shalten "${key}" not found`);
+    if (shalten.state === ON) throw new Error(`Shalten "${key}" is already on`);
 
-    if (beforeOn) beforeOn();
-
-    const cleanup = shalten.func();
-
-    if (afterOn) afterOn();
-
-    if (cleanup && typeof cleanup === "function") cleanup();
+    this._doSomething(key, shalten, options);
 
     this._shaltens.set(key, { ...shalten, state: ON });
 
     return this;
   }
 
-  async switchAllOn() {
+  switchAllOn(options = {}) {
     for (const [key, shalten] of this._shaltens.entries()) {
       const { func, state } = shalten;
 
-      if (state === ON) throw new Error(`Shalten ${key} is already on`);
+      if (state === ON) throw new Error(`Shalten "${key}" is already on`);
 
-      const cleanup = func();
-
-      if (cleanup && typeof cleanup === "function") cleanup();
+      this._doSomething(shalten, options);
 
       this._shaltens.set(key, { func, state: ON });
     }
@@ -86,18 +79,17 @@ class Shalten {
   switchOff(key) {
     const shalten = this._shaltens.get(key);
 
-    if (!shalten) throw new Error(`Shalten ${key} not found`);
+    if (!shalten) throw new Error(`Shalten "${key}" not found`);
 
-    const { func, state } = shalten;
+    if (shalten.state === OFF)
+      throw new Error(`Shalten "${key}" is already off`);
 
-    if (state === OFF) throw new Error(`Shalten ${key} is already off`);
-
-    this._shaltens.set(key, { func, state: OFF });
+    this._shaltens.set(key, { ...shalten, state: OFF });
 
     return this;
   }
 
-  async switchAllOff() {
+  switchAllOff() {
     for (const [key, shalten] of this._shaltens.entries()) {
       const { func } = shalten;
       this._shaltens.set(key, { func, state: OFF });
@@ -107,7 +99,7 @@ class Shalten {
   }
 
   restart(key) {
-    if (!this._shaltens.has(key)) throw new Error(`Shalten ${key} not found`);
+    if (!this._shaltens.has(key)) throw new Error(`Shalten "${key}" not found`);
 
     this.switchOff(key);
     this.switchOn(key);
@@ -119,6 +111,18 @@ class Shalten {
     this.switchAllOff();
     this.switchAllOn();
     return this;
+  }
+
+  async _doSomething(key, shalten, options = {}) {
+    const { beforeOn, afterOn } = options;
+
+    this._shaltens.set(key, { ...shalten, state: LOADING });
+
+    if (beforeOn) beforeOn();
+
+    await shalten.func();
+
+    if (afterOn) afterOn();
   }
 }
 

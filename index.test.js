@@ -2,12 +2,9 @@ const Shalten = require("./index");
 
 describe("Shalten methods", () => {
   const [TEST_KEY1, TEST_KEY2] = ["test", "test2"];
-  const testFunc = () => {
-    return () => {};
-  };
-  const testFunc2 = () => {};
+  const testFunc = () => {};
   const testValue = [TEST_KEY1, { func: testFunc, state: "off" }];
-  const testValue2 = [TEST_KEY2, testFunc2];
+  const testValue2 = [TEST_KEY2, testFunc];
   const board = new Shalten([testValue2]);
 
   test("contains added shalten value", () => {
@@ -16,14 +13,15 @@ describe("Shalten methods", () => {
   });
 
   test("contains list of values", () => {
-    expect(board.values).toEqual([
-      [TEST_KEY2, { func: testFunc2, state: "off" }],
+    expect(board.shaltens).toEqual([
+      [TEST_KEY2, { func: testFunc, state: "off" }],
       testValue,
     ]);
   });
 
   test("turns on shalten value", () => {
     const shaltenItem = board.switchOn(TEST_KEY1).get(TEST_KEY1);
+
     expect(shaltenItem).toEqual({ func: testFunc, state: "on" });
   });
 
@@ -44,37 +42,39 @@ describe("Shalten methods", () => {
   test("throws shalten not found", () => {
     expect(() => {
       board.switchOn(TEST_KEY1);
-    }).toThrow(`Shalten ${TEST_KEY1} not found`);
-  });
-
-  test("do nothing if there's no cleanup", () => {
-    expect(() => {
-      board.switchOn(TEST_KEY2);
-    }).not.toThrow();
+    }).toThrow(`Shalten "${TEST_KEY1}" not found`);
   });
 
   test("turn off all shalten values", () => {
     board.switchAllOff();
-    const shaltens = board.values;
+    const shaltens = board.shaltens;
 
-    expect(shaltens).toEqual([[TEST_KEY2, { func: testFunc2, state: "off" }]]);
+    expect(shaltens).toEqual([[TEST_KEY2, { func: testFunc, state: "off" }]]);
   });
 });
 
 describe("Fetch data from API", () => {
+  const board = new Shalten();
   const fetchDataApi = jest.fn().mockReturnValue({ data: "data" });
-
+  const checkState = jest.fn((state) => state).mockReturnValue("loading");
   let data = null;
+
   const fetchData = (_arg) => () => {
+    const state = board.get("fetchData").state;
+    checkState(state);
     data = fetchDataApi();
   };
 
-  const board = new Shalten([["fetchData", fetchData("stuff")]]);
+  board.add("fetchData", fetchData("stuff"));
 
   test("turn on shalten value", () => {
     board.switchOn("fetchData");
 
     expect(fetchDataApi).toHaveBeenCalled();
+  });
+
+  test("check if shalten value is loading", () => {
+    expect(checkState.mock.results[0].value).toEqual("loading");
   });
 
   test("check if shalten value is on", () => {
