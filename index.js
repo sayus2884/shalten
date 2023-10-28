@@ -30,7 +30,11 @@ class Shalten {
   }
 
   get shaltens() {
-    return Array.from(this._shaltens);
+    const _shaltens = Array.from(this._shaltens).map(([key, value]) => {
+      return { name: key, state: value.state };
+    });
+
+    return _shaltens;
   }
 
   add(key, func) {

@@ -14,8 +14,8 @@ describe("Shalten methods", () => {
 
   test("contains list of values", () => {
     expect(board.shaltens).toEqual([
-      [TEST_KEY2, { func: testFunc, state: "off" }],
-      testValue,
+      { name: TEST_KEY2, state: "off" },
+      { name: testValue[0], state: testValue[1].state },
     ]);
   });
 
@@ -49,7 +49,7 @@ describe("Shalten methods", () => {
     board.switchAllOff();
     const shaltens = board.shaltens;
 
-    expect(shaltens).toEqual([[TEST_KEY2, { func: testFunc, state: "off" }]]);
+    expect(shaltens).toEqual([{ name: TEST_KEY2, state: "off" }]);
   });
 });
 
