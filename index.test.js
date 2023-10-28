@@ -6,30 +6,30 @@ describe("Shalten methods", () => {
     return () => {};
   };
   const testFunc2 = () => {};
-  const testValue = [TEST_KEY1, { func: testFunc, on: false }];
+  const testValue = [TEST_KEY1, { func: testFunc, state: "off" }];
   const testValue2 = [TEST_KEY2, testFunc2];
   const board = new Shalten([testValue2]);
 
   test("contains added shalten value", () => {
     const shaltenItem = board.add(TEST_KEY1, testFunc).get(TEST_KEY1);
-    expect(shaltenItem).toEqual({ func: testFunc, on: false });
+    expect(shaltenItem).toEqual({ func: testFunc, state: "off" });
   });
 
   test("contains list of values", () => {
     expect(board.values).toEqual([
-      [TEST_KEY2, { func: testFunc2, on: false }],
+      [TEST_KEY2, { func: testFunc2, state: "off" }],
       testValue,
     ]);
   });
 
   test("turns on shalten value", () => {
     const shaltenItem = board.switchOn(TEST_KEY1).get(TEST_KEY1);
-    expect(shaltenItem).toEqual({ func: testFunc, on: true });
+    expect(shaltenItem).toEqual({ func: testFunc, state: "on" });
   });
 
   test("turns off shalten value", () => {
     const shaltenItem = board.switchOff(TEST_KEY1).get(TEST_KEY1);
-    expect(shaltenItem).toEqual({ func: testFunc, on: false });
+    expect(shaltenItem).toEqual({ func: testFunc, state: "off" });
   });
 
   test("does not contain removed shalten value", () => {
@@ -57,7 +57,7 @@ describe("Shalten methods", () => {
     board.switchAllOff();
     const shaltens = board.values;
 
-    expect(shaltens).toEqual([[TEST_KEY2, { func: testFunc2, on: false }]]);
+    expect(shaltens).toEqual([[TEST_KEY2, { func: testFunc2, state: "off" }]]);
   });
 });
 
@@ -78,7 +78,7 @@ describe("Fetch data from API", () => {
   });
 
   test("check if shalten value is on", () => {
-    expect(board.get("fetchData").on).toEqual(true);
+    expect(board.get("fetchData").state).toEqual("on");
   });
 
   test("check if data var received mock up data", () => {

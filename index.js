@@ -1,3 +1,6 @@
+const ON = "on";
+const OFF = "off";
+
 class Shalten {
   constructor(shaltens = []) {
     if (!Array.isArray(shaltens)) {
@@ -17,7 +20,7 @@ class Shalten {
         key,
         {
           func: value,
-          on: false,
+          state: OFF,
         },
       ];
     });
@@ -30,7 +33,7 @@ class Shalten {
   }
 
   add(key, func) {
-    this._shaltens.set(key, { func, on: false });
+    this._shaltens.set(key, { func, state: OFF });
     return this;
   }
 
@@ -49,7 +52,7 @@ class Shalten {
     const shalten = this._shaltens.get(key);
 
     if (!shalten) throw new Error(`Shalten ${key} not found`);
-    if (shalten.on) throw new Error(`Shalten ${key} is already on`);
+    if (shalten.state === ON) throw new Error(`Shalten ${key} is already on`);
 
     if (beforeOn) beforeOn();
 
@@ -59,22 +62,22 @@ class Shalten {
 
     if (cleanup && typeof cleanup === "function") cleanup();
 
-    this._shaltens.set(key, { ...shalten, on: true });
+    this._shaltens.set(key, { ...shalten, state: ON });
 
     return this;
   }
 
   async switchAllOn() {
     for (const [key, shalten] of this._shaltens.entries()) {
-      const { func, on } = shalten;
+      const { func, state } = shalten;
 
-      if (on) throw new Error(`Shalten ${key} is already on`);
+      if (state === ON) throw new Error(`Shalten ${key} is already on`);
 
       const cleanup = func();
 
       if (cleanup && typeof cleanup === "function") cleanup();
 
-      this._shaltens.set(key, { func, on: true });
+      this._shaltens.set(key, { func, state: ON });
     }
 
     return this;
@@ -85,11 +88,11 @@ class Shalten {
 
     if (!shalten) throw new Error(`Shalten ${key} not found`);
 
-    const { func, on } = shalten;
+    const { func, state } = shalten;
 
-    if (!on) throw new Error(`Shalten ${key} is already off`);
+    if (state === OFF) throw new Error(`Shalten ${key} is already off`);
 
-    this._shaltens.set(key, { func, on: false });
+    this._shaltens.set(key, { func, state: OFF });
 
     return this;
   }
@@ -97,7 +100,7 @@ class Shalten {
   async switchAllOff() {
     for (const [key, shalten] of this._shaltens.entries()) {
       const { func } = shalten;
-      this._shaltens.set(key, { func, on: false });
+      this._shaltens.set(key, { func, state: OFF });
     }
 
     return this;
